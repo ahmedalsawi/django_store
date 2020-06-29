@@ -1,6 +1,6 @@
-{% extends 'core/base.html' %}
-{% load static %}
+{% extends 'core/base.html' %} {% load static %} {% block content %}
+<div>
+  {% for op in items %} {{op.quantity}} {%endfor%}
+</div>
 
-{% block content %}
-cart
 {% endblock %}

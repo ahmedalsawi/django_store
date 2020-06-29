@@ -1,6 +1,10 @@
 from django.db import models
 from django.utils import timezone
 
+from django.contrib.auth.models import AbstractBaseUser, User
+
+from djangostore import settings
+
 
 class Product(models.Model):
     title = models.CharField(max_length=200)
@@ -9,8 +13,9 @@ class Product(models.Model):
 
 
 class OrderProduct(models.Model):
-    product = models.ForeignKey(
-        Product, on_delete=models.CASCADE, related_name="product")
+    user = models.ForeignKey(User,
+                             on_delete=models.CASCADE, null=True)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
     quantity = models.IntegerField()
 
     def __str__(self):
@@ -18,7 +23,8 @@ class OrderProduct(models.Model):
 
 
 class Order(models.Model):
-    # User =
+    user = models.ForeignKey(User,
+                             on_delete=models.CASCADE, null=True)
     order_products = models.ManyToManyField(OrderProduct)
     ordered_datetime = models.DateTimeField()
     is_ordered = models.BooleanField(default=False)

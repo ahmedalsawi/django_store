@@ -1,12 +1,16 @@
 from django.views.generic import TemplateView, ListView, DetailView
 
 from django.views import View
-from django.http import HttpResponse
-from django.shortcuts import render, reverse
+from django.http import HttpResponse, HttpResponseNotFound
+from django.shortcuts import render, reverse, redirect
 
 from django.contrib.auth.mixins import LoginRequiredMixin
 
+from django.utils import timezone
+
+
 from . import models
+
 from djangostore import settings
 
 
@@ -29,7 +33,51 @@ class ProductListView(ListView):
     model = models.Product
 
 
-# Private views
+# Private view
+
+class AddProductToCart(LoginRequiredMixin, View):
+    # LoginRequiredMixin
+    login_url = settings.LOGIN_URL
+
+    def post(self, request, pk):
+        user = request.user
+        # TODO parse quantity from form
+        try:
+            product = models.Product.objects.get(pk=pk)
+        except models.Product.DoesNotExist:
+            return HttpResponseNotFound()
+
+        # Check if there are orders/cart
+        orders_for_user = models.Order.objects.filter(
+            user=user.id).filter(is_ordered=False)
+        if not orders_for_user.exists():
+            # else create OrderItem and order
+            print('createing new cart')
+            op = models.OrderProduct(user=user, product=product, quantity=0)
+            op.save()
+            order = models.Order(user=user, ordered_datetime=timezone.now())
+            order.save()
+            order.order_products.add(op)
+        else:
+            # Get the order that is_order=False (ie cart)
+            # Check if there order items with the same product, if add the number to order item
+            # else create OrderItem and order
+            cart = orders_for_user[0]
+            qs = cart.order_products.filter(product__id=pk)
+            if qs.exists():
+                op = qs[0]
+                # order product already in cart
+                op.quantity += 1
+                op.save()
+            else:
+                # create new product order and update cart
+                op = models.OrderProduct(
+                    user=user, product=product, quantity=0)
+                op.save()
+                cart.order_products.add(op)
+
+        return HttpResponse('hi')
+
 
 class CartView(LoginRequiredMixin, TemplateView):
     # TemplateView
@@ -40,4 +88,10 @@ class CartView(LoginRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+
+        user = self.request.user
+        orders_for_user = models.Order.objects.filter(
+            user=user.id).filter(is_ordered=False)
+        if orders_for_user.exists():
+            context['items'] = orders_for_user[0].order_products.all()
         return context

@@ -1,7 +1,8 @@
-{% extends 'core/base.html' %}
-{% load static %}
+{% extends 'core/base.html' %} {% load static %} {% block content %}
 
-{% block content %}
-product
-{{ object.title }}
+<form action="/addtocart/{{object.id}}/" method="post">
+  {% csrf_token %}
+  <input type="integer" />
+  <button>Submit</button>
+</form>
 {% endblock %}
