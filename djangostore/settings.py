@@ -151,3 +151,6 @@ AUTHENTICATION_BACKENDS = [
 
 SITE_ID = 1
 LOGIN_REDIRECT_URL = '/'
+
+# common setting
+LOGIN_URL = '/accounts/login/'

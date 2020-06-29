@@ -1,0 +1,10 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block content %}
+product List
+
+{% for product in object_list %}
+{{product.title}}
+{% endfor %}
+{% endblock %}
