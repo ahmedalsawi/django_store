@@ -1,8 +1,14 @@
 {% extends 'core/base.html' %} {% load static %} {% block content %}
 
+<div>
+{{object.title}}
+</div>
+<div>{{object.description}}</div>
+<div>{{object.price}}</div>
 <form action="/addtocart/{{object.id}}/" method="post">
   {% csrf_token %}
-  <input type="integer" />
-  <button>Submit</button>
+  <label>Qty</label>
+  <input type="integer" name="quantity" value="1"/>
+  <button>Add to cart</button>
 </form>
 {% endblock %}

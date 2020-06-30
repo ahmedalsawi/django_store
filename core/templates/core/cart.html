@@ -1,6 +1,27 @@
 {% extends 'core/base.html' %} {% load static %} {% block content %}
+
+
 <div>
-  {% for op in items %} {{op.quantity}} {%endfor%}
+{% if items %}
+  <ul class="list-group">
+    {% for item in items %}
+      <li class="list-group-item">
+      {{item.product.title}}
+      {{item.product.price}}
+      {{item.quantity}}
+        <form action="/removefromcart/{{item.product.id}}/" method="post">
+          {% csrf_token %}
+          <button>Remove</button>
+        </form>
+      </li>
+    {%endfor%}
+  </ul>
+
+  <a href="{% url 'checkout' %}"></a>
+{% else %}
+  <h1>Cart is empty</h1>
+{%endif%}
 </div>
+
 
 {% endblock %}

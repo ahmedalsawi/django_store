@@ -10,6 +10,7 @@ from django.utils import timezone
 
 
 from . import models
+from . import forms
 
 from djangostore import settings
 
@@ -47,36 +48,68 @@ class AddProductToCart(LoginRequiredMixin, View):
         except models.Product.DoesNotExist:
             return HttpResponseNotFound()
 
-        # Check if there are orders/cart
+        form = forms.AddToCart(request.POST)
+        if form.is_valid():
+            quantity = form.cleaned_data['quantity']
+            # Check if there are orders/cart
+            orders_for_user = models.Order.objects.filter(
+                user=user.id).filter(is_ordered=False)
+            if not orders_for_user.exists():
+                # else create OrderItem and order
+                op = models.OrderProduct(
+                    user=user, product=product, quantity=quantity)
+                op.save()
+                order = models.Order(
+                    user=user, ordered_datetime=timezone.now())
+                order.save()
+                order.order_products.add(op)
+            else:
+                # Get the order that is_order=False (ie cart)
+                # Check if there order items with the same product, if add the number to order item
+                # else create OrderItem and order
+                cart = orders_for_user[0]
+                qs = cart.order_products.filter(product__id=pk)
+                if qs.exists():
+                    op = qs[0]
+                    # order product already in cart
+                    op.quantity += quantity
+                    op.save()
+                else:
+                    # create new product order and update cart
+                    op = models.OrderProduct(
+                        user=user, product=product, quantity=quantity)
+                    op.save()
+                    cart.order_products.add(op)
+
+            return redirect(reverse('cart'))
+        else:
+            return redirect(reverse('product-detail', args=[pk]))
+
+
+class RemoveProductFromCart(LoginRequiredMixin, View):
+    # LoginRequiredMixin
+    login_url = settings.LOGIN_URL
+
+    def post(self, request, pk):
+        user = request.user
+        try:
+            product = models.Product.objects.get(pk=pk)
+        except models.Product.DoesNotExist:
+            return HttpResponseNotFound()
+
         orders_for_user = models.Order.objects.filter(
             user=user.id).filter(is_ordered=False)
         if not orders_for_user.exists():
-            # else create OrderItem and order
-            print('createing new cart')
-            op = models.OrderProduct(user=user, product=product, quantity=0)
-            op.save()
-            order = models.Order(user=user, ordered_datetime=timezone.now())
-            order.save()
-            order.order_products.add(op)
+            return HttpResponseNotFound()
         else:
-            # Get the order that is_order=False (ie cart)
-            # Check if there order items with the same product, if add the number to order item
-            # else create OrderItem and order
             cart = orders_for_user[0]
             qs = cart.order_products.filter(product__id=pk)
             if qs.exists():
                 op = qs[0]
-                # order product already in cart
-                op.quantity += 1
-                op.save()
+                op.delete()
             else:
-                # create new product order and update cart
-                op = models.OrderProduct(
-                    user=user, product=product, quantity=0)
-                op.save()
-                cart.order_products.add(op)
-
-        return HttpResponse('hi')
+                return HttpResponseNotFound()
+        return redirect(reverse('cart'))
 
 
 class CartView(LoginRequiredMixin, TemplateView):
@@ -95,3 +128,18 @@ class CartView(LoginRequiredMixin, TemplateView):
         if orders_for_user.exists():
             context['items'] = orders_for_user[0].order_products.all()
         return context
+
+
+class CheckoutView(LoginRequiredMixin, View):
+    # TemplateView
+    template_name = "core/checkout.html"
+
+    # LoginRequiredMixin
+    login_url = settings.LOGIN_URL
+
+    def get(self, request):
+        context = {}
+        return render(request, self.template_name, context=context)
+
+    def post(self, request, pk):
+        pass
