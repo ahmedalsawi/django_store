@@ -15,7 +15,7 @@ from . import forms
 from djangostore import settings
 
 
-# Private views
+# public views
 class HomeView(TemplateView):
     template_name = "core/home.html"
 
@@ -143,3 +143,11 @@ class CheckoutView(LoginRequiredMixin, View):
 
     def post(self, request, pk):
         pass
+
+
+class ProfileView(LoginRequiredMixin, TemplateView):
+    template_name = "core/profile.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return context

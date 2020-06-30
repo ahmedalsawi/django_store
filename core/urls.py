@@ -14,4 +14,6 @@ urlpatterns = [
          name='remove-from-cart'),
     path('checkout/', views.CheckoutView.as_view(),
          name='checkout'),
+    path('profile/', views.ProfileView.as_view(),
+         name='profile'),
 ]
