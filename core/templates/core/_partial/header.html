@@ -26,7 +26,7 @@
 
         <li class="nav-item">
           <a href="{% url 'cart' %}">
-            <span class="badge">9</span>
+            <span class="badge">{{cart.get_number_products}}</span>
             <i class="fa fa-shopping-cart" aria-hidden="true"></i>
           </a>
         </li>

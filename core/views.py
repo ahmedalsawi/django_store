@@ -15,7 +15,19 @@ from . import forms
 from djangostore import settings
 
 
+def get_cart(user):
+    if user is None:
+        return None
+    qs = models.Order.objects.filter(
+        user=user.id).filter(is_ordered=False)
+    if qs.exists():
+        return qs[0]
+    else:
+        return None
+
 # public views
+
+
 class HomeView(TemplateView):
     template_name = "core/home.html"
 
@@ -52,15 +64,13 @@ class CartView(LoginRequiredMixin, TemplateView):
     # LoginRequiredMixin
     login_url = settings.LOGIN_URL
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
+    # def get_context_data(self, **kwargs):
+    #     context = super().get_context_data(**kwargs)
 
-        user = self.request.user
-        orders_for_user = models.Order.objects.filter(
-            user=user.id).filter(is_ordered=False)
-        if orders_for_user.exists():
-            context['order_products'] = orders_for_user[0].order_products.all()
-        return context
+    #     user = self.request.user
+    #     cart = get_cart(user)
+    #     context['cart'] = cart
+    #     return context
 
 
 class CheckoutView(LoginRequiredMixin, View):
@@ -72,7 +82,7 @@ class CheckoutView(LoginRequiredMixin, View):
 
     def get(self, request):
         context = {}
-        return render(request, self.template_name, context=context)
+        return render(request, self.template_name)
 
     def post(self, request):
         pass
@@ -152,3 +162,11 @@ class RemoveProductFromCart(LoginRequiredMixin, View):
             else:
                 return HttpResponseNotFound()
         return redirect(reverse('cart'))
+
+
+def add_cart_context(request):
+    if request.user is None:
+        return {}
+    cart = get_cart(request.user)
+    context = {'cart': cart} if cart else {}
+    return context

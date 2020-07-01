@@ -56,11 +56,14 @@ class Order(models.Model):
     ordered_datetime = models.DateTimeField()
     is_ordered = models.BooleanField(default=False)
 
-    def __str__(self):
-        return f"Order owner:{self.user.username}"
-
     def get_total(self):
         total = 0
         for order_item in self.order_products.all():
             total += order_item.get_total_item_price()
         return total
+
+    def get_number_products(self):
+        return self.order_products.count()
+
+    def __str__(self):
+        return f"Order owner:{self.user.username} Count:{self.get_number_products()}"

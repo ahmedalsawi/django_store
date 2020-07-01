@@ -3,9 +3,9 @@
 
 {% block content %}
 <div>
-  {% if order_products %}
+  {% if cart %}
   <ul class="list-group">
-    {% for order_product in order_products %}
+    {% for order_product in cart.order_products.all %}
     <li class="list-group-item">
       {{order_product.product.title}}
       {{order_product.product.price}}
@@ -18,7 +18,7 @@
     {%endfor%}
   </ul>
 
-  <a href="{% url 'cart-checkout' %}"></a>
+  <a href="{% url 'cart-checkout' %}">Checkout</a>
   {% else %}
   <h1>Cart is empty</h1>
   {%endif%}

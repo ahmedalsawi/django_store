@@ -3,4 +3,16 @@
 
 {% block content %}
 <h1>Checkout</h1>
+
+{% if cart %}
+
+{% for order_product in cart.order_products.all %}
+<div>
+    {{ order_product.product.title }} {{order_product.quantity}}
+</div>
+{%endfor%}
+
+{{cart.get_total}}
+{%endif%}
+
 {% endblock %}
