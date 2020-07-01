@@ -1,11 +1,9 @@
 from django.db import models
 from django.utils import timezone
 
-from django.contrib.auth.models import AbstractBaseUser, User
+from django.contrib.auth.models import AbstractUser, User
 
 from djangostore import settings
-
-from django.contrib.auth.models import AbstractUser
 
 
 class User(AbstractUser):
@@ -16,6 +14,13 @@ class Product(models.Model):
     title = models.CharField(max_length=200)
     description = models.TextField()
     price = models.FloatField()
+
+
+class Image(models.Model):
+    user = models.ForeignKey(User,
+                             on_delete=models.CASCADE, null=True)
+    product = models.ForeignKey(Product,
+                                on_delete=models.CASCADE)
 
 
 class OrderProduct(models.Model):

@@ -74,7 +74,7 @@ class CheckoutView(LoginRequiredMixin, View):
         context = {}
         return render(request, self.template_name, context=context)
 
-    def post(self, request, pk):
+    def post(self, request):
         pass
 
 
