@@ -131,17 +131,25 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
-
 STATIC_URL = '/static/'
+MEDIA_URL = '/media/'
+
+STATIC_ROOT = BASE_DIR if DEBUG else os.getenv(
+    'DJANGO_STATIC_ROOT')
+MEDIA_ROOT = BASE_DIR if DEBUG else os.getenv(
+    'DJANGO_MEDIA_ROOT')
+if STATIC_ROOT is None or MEDIA_ROOT is None:
+    print(f"Make sure to set  STATIC_ROOT or MEDIA_ROOT in Production ")
+    sys.exit()
+STATIC_ROOT = os.path.join(STATIC_ROOT, "static")
+MEDIA_ROOT = os.path.join(MEDIA_ROOT, 'media')
 
 # For debug toolbar
-
 INTERNAL_IPS = [
     '127.0.0.1',
 ]
 
 # allauth setup
-
 AUTHENTICATION_BACKENDS = [
     # Needed to login by username in Django admin, regardless of `allauth`
     'django.contrib.auth.backends.ModelBackend',
@@ -154,3 +162,5 @@ LOGIN_REDIRECT_URL = '/'
 
 # common setting
 LOGIN_URL = '/accounts/login/'
+
+AUTH_USER_MODEL = 'core.User'

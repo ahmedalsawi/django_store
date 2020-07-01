@@ -5,6 +5,12 @@ from django.contrib.auth.models import AbstractBaseUser, User
 
 from djangostore import settings
 
+from django.contrib.auth.models import AbstractUser
+
+
+class User(AbstractUser):
+    user_avatar = models.ImageField(upload_to="uploads", blank=True)
+
 
 class Product(models.Model):
     title = models.CharField(max_length=200)
