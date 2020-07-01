@@ -8,6 +8,7 @@ django-allauth = "*"
 django = "*"
 django-debug-toolbar = "*"
 pillow = "*"
+django-cleanup = "*"
 
 [dev-packages]
 pep8 = "*"
